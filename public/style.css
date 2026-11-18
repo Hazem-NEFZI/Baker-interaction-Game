@@ -134,3 +134,23 @@
 .lobby-main .lobby-info,.lobby-main .center-caption{margin:0;font-size:13px}
 .lobby-main .host-settings{margin:2px 0}
 .join-qr img{width:clamp(110px,13vw,185px)}
+/* V8 · Écran final : le podium et la galerie s'adaptent à la place disponible (plus de chevauchement) */
+#cardContent:has(.final-tabs){justify-content:flex-start}
+#cardContent .final-tabs{position:relative;z-index:2}
+#cardContent .final-content{container-type:size;justify-content:flex-start;overflow:hidden;gap:clamp(3px,2cqh,8px)}
+#cardContent .final-content .podium{flex:1 1 auto;height:auto;min-height:0;max-height:none;align-items:flex-end;gap:clamp(6px,2vw,14px)}
+#cardContent .final-content .podium-person{min-height:0;gap:clamp(1px,1cqh,4px);justify-content:flex-end}
+#cardContent .final-content .podium-emoji{font-size:clamp(18px,24cqh,56px);line-height:1}
+#cardContent .final-content .podium-name{font-size:clamp(9px,5.5cqh,13px)}
+#cardContent .final-content .podium-points{font-size:clamp(9px,5.5cqh,13px)}
+#cardContent .final-content .podium-stand{height:calc(var(--stand-r,1) * 36cqh);max-height:none;min-height:16px;font-size:clamp(13px,13cqh,33px)}
+#cardContent .final-content .center-caption{flex:0 0 auto;margin:0}
+#cardContent .final-content .loser-gallery{flex:1 1 auto;min-height:0;align-items:stretch}
+#cardContent .final-content .loser-agent{min-height:0}
+#cardContent .final-content .loser-agent img{flex:1 1 auto;min-height:0;height:auto;max-height:clamp(40px,62cqh,170px);width:min(100%,160px)}
+#cardContent .final-content .podium-emoji{font-size:clamp(14px,20cqh,56px)}
+#cardContent .final-content .podium-stand{height:calc(var(--stand-r,1) * 30cqh)}
+#cardContent .final-content .loser-agent img{max-height:clamp(36px,50cqh,170px)}
+#cardContent .final-content .loser-agent span,#cardContent .final-content .loser-agent small{flex:0 0 auto}
+@media (max-height:660px){#cardContent:has(.final-tabs) .card-eyebrow{display:none}#cardContent:has(.final-tabs) .card-title{font-size:clamp(15px,2.4vh,20px)}}
+#cardContent .final-content .loser-gallery{align-items:flex-start}
