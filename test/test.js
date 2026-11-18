@@ -1,0 +1,30 @@
+'use strict';
+const {spawn}=require('node:child_process');const assert=require('node:assert/strict');const path=require('node:path');
+const port=3300+Math.floor(Math.random()*900);
+const server=spawn(process.execPath,['server.js'],{cwd:path.join(__dirname,'..'),env:{...process.env,PORT:String(port)},stdio:'pipe'});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const api=async (op,body)=>{const res=await fetch(`http://127.0.0.1:${port}/api/${op}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return {status:res.status,...await res.json()}};
+(async()=>{try{
+ let connected=false;for(let i=0;i<70;i++){try{let r=await fetch(`http://127.0.0.1:${port}/health`);if(r.ok){connected=true;break}}catch{}await sleep(90)}assert(connected,'server startup');
+ const r=await api('create',{});assert.match(r.room,/^\d{4}$/);assert(r.hostKey);
+ const invalid=await api('join',{room:r.room,name:'Intrus',avatar:'invalid'});assert.equal(invalid.status,400);
+ const a=await api('join',{room:r.room,name:'Agent Renard',avatar:'fox'}),b=await api('join',{room:r.room,name:'Agent Hibou',avatar:'owl'}),c=await api('join',{room:r.room,name:'Agent Corbeau',avatar:'raven'});
+ assert(a.pid&&b.pid&&c.pid);const duplicate=await api('join',{room:r.room,name:'Agent Renard',avatar:'owl'});assert.equal(duplicate.status,400);
+ const badHost=await api('control',{room:r.room,hostKey:'wrong',action:'start'});assert.equal(badHost.status,400);
+ const badAttack=await api('attack',{room:r.room,pid:b.pid,target:a.pid,kind:'tomato'});assert.equal(badAttack.status,400,'cannot attack before correct answer');
+ const before=await api('status',{room:r.room,pid:a.pid});assert.equal(before.playerCount,3);
+ assert.equal((await api('control',{room:r.room,hostKey:r.hostKey,action:'start'})).ok,true);
+ const started=await api('status',{room:r.room,pid:a.pid});assert.equal(started.status,'running');assert.equal(started.mission.id,'birth');assert(!('answer' in started.mission),'answers never leak during play');
+ const solved=await api('answer',{room:r.room,pid:a.pid,answer:'Saint-Louis (Missouri)'});assert(solved.correct&&solved.points>=400);
+ const wrong=await api('answer',{room:r.room,pid:b.pid,answer:'New York'});assert(!wrong.correct&&wrong.points===0);
+ const duplicateAnswer=await api('answer',{room:r.room,pid:a.pid,answer:'Saint-Louis (Missouri)'});assert.equal(duplicateAnswer.status,400);
+ let state=await api('status',{room:r.room,pid:a.pid});assert.equal(state.me.charges,1);assert.equal(state.me.correct,1);assert.equal(state.scores[0].name,'Agent Renard');
+ const canAttack=await api('attack',{room:r.room,pid:a.pid,target:b.pid,kind:'tomato'});assert(canAttack.ok);
+ const spent=await api('status',{room:r.room,pid:a.pid});assert.equal(spent.me.charges,0);assert.equal(spent.scores[0].attacks,1);assert.equal(spent.attacks[0].emoji,'🍅');
+ assert.equal((await api('attack',{room:r.room,pid:a.pid,target:c.pid,kind:'ink'})).status,400,'no free attacks');
+ assert.equal((await api('attack',{room:r.room,pid:b.pid,target:a.pid,kind:'banana'})).status,400,'wrong answer no charge');
+ for(let i=0;i<8;i++){let move=await api('control',{room:r.room,hostKey:r.hostKey,action:'next'});assert(move.ok);let reveal=await api('status',{room:r.room,pid:a.pid});assert.equal(reveal.status,'reveal');assert(!!reveal.mission.answer,'answer visible only after reveal');if(i<7){let n=await api('control',{room:r.room,hostKey:r.hostKey,action:'next'});assert(n.ok);}}
+ assert((await api('control',{room:r.room,hostKey:r.hostKey,action:'next'})).ok);const end=await api('status',{room:r.room,pid:a.pid});assert.equal(end.status,'finished');assert.equal(end.scores[0].name,'Agent Renard');
+ const reset=await api('control',{room:r.room,hostKey:r.hostKey,action:'reset'});assert(reset.ok);const clean=await api('status',{room:r.room,pid:a.pid});assert.equal(clean.status,'lobby');assert(clean.scores.every(x=>x.score===0));
+ console.log('PASS: creation, avatar join, duplicate names, host auth, server-only answers, scoring, no free gadget, real attacks, 8 missions, podium, reset.');
+}catch(e){console.error('FAIL',e);process.exitCode=1}finally{server.kill('SIGTERM')}})();

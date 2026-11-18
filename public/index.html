@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a27"><title>OPÉRATION BAKER — Le Cercle des Espions</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="grain"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<header class="topbar">
+  <div class="brand"><div class="brand-seal">✦</div><div class="brand-copy"><strong>OPÉRATION <em>BAKER</em></strong><small>LE CERCLE DES ESPIONS · ÉDITION MULTIJOUEUR</small></div></div>
+  <div class="header-right"><span class="live-pulse"></span><span id="networkStatus">BUREAU CENTRAL</span><button id="soundBtn" type="button" aria-label="Activer le son" title="Son">♫</button><button id="fullscreenBtn" type="button" aria-label="Plein écran" title="Plein écran">⛶</button></div>
+</header>
+<main>
+<section id="landing" class="screen landing">
+  <div class="landing-copy">
+    <span class="eyebrow">TRANSMISSION PRIORITAIRE · PARIS 1940</span>
+    <div class="chapter-num">DOSSIER CLASSIFIÉ / N° 001</div>
+    <h1>La connaissance<br>est une <em>arme.</em></h1>
+    <p>Infiltrez le cercle de Joséphine Baker. Prenez place autour de la table, déchiffrez les questions historiques et envoyez des <strong>tomates volantes</strong> sur les autres agents après chaque bonne réponse. Les trois premiers impacts de chaque question affichent un mème de chat 😹. Les suivants affichent des messages polis. À la fin, découvrez le podium et les réactions des agents malchanceux !</p>
+    <div class="host-create-choice"><label for="createLimit">CHEF DE MISSION · NOMBRE MAXIMUM D’AGENTS</label><input id="createLimit" type="number" min="2" max="40" step="1" value="12" aria-label="Nombre maximum de joueurs"></div><div class="landing-actions"><button id="createBtn" class="btn primary">✦ CRÉER UNE MISSION</button><button id="joinBtn" class="btn secondary">REJOINDRE UN CERCLE ↗</button></div>
+    <div class="landing-features"><span>10 MISSIONS</span><span>12 AVATARS</span><span>4 GADGETS</span><span>PODIUM</span></div>
+  </div>
+  <div class="landing-visual">
+    <div class="preview-stamp">APERÇU EN DIRECT <b>◉</b></div>
+    <div class="sample-ring" aria-hidden="true">
+      <div class="sample-person p1">🦊<small>AGENT RENARD</small></div><div class="sample-person p2">🦉<small>LA CHOUETTE</small></div>
+      <div class="sample-person p3">🐈‍⬛<small>OMBRE NOIRE</small></div><div class="sample-person p4">🐺<small>LOUP MINUIT</small></div>
+      <div class="preview-table"><span>TRÈS SECRET</span><b>QUELLE ANNÉE ?</b><i>✦</i><small>4 AGENTS CONNECTÉS</small></div>
+      <div id="sampleTomato" class="sample-tomato">🍅</div>
+    </div>
+    <div class="preview-bottom"><span>Agents vivants · Aucun défilement · Lancers de siège à siège</span><button id="throwDemoBtn" class="tiny-btn hidden" tabindex="-1" aria-hidden="true">🍅 VOIR UN LANCER</button></div>
+  </div>
+</section>
+<section id="joinView" class="screen join-view hidden">
+  <div class="join-intro"><span class="eyebrow">BUREAU DE RECRUTEMENT</span><h2>Votre identité<br><em>secrète.</em></h2><p>Choisissez un nom de code digne des meilleurs espions. Un clic, et vous rejoignez le cercle.</p><div class="join-motto">« L'apparence trompe. La mémoire sauve. »</div></div>
+  <form id="joinForm" class="join-panel">
+    <div class="join-heading"><span>CARTE D'AGENT</span><button id="backBtn" type="button" class="tiny-btn">← RETOUR</button></div>
+    <label class="field-label" for="roomInput">CODE DE LA CLASSE</label><input id="roomInput" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="••••" required autocomplete="off">
+    <div class="selection-row"><label class="field-label">NOM DE CODE</label><button type="button" id="rerollNames" class="link-button">↻ NOUVEAUX NOMS</button></div>
+    <div id="codenameGrid" class="codename-grid" role="group" aria-label="Noms de code"></div>
+    <label class="field-label">VOTRE AGENT</label><div id="avatarGrid" class="avatar-grid" role="group" aria-label="Choix d'avatar"></div>
+    <button type="submit" class="btn primary join-submit">REJOINDRE LA MISSION ↗</button>
+  </form>
+</section>
+<section id="gameView" class="screen game-view hidden">
+  <div class="mission-strip"><div class="room-tag">CELLULE <strong id="roomLabel">----</strong></div><div class="phase"><i></i><span id="phaseLabel">RECRUTEMENT EN COURS</span></div><div class="question-count"><span id="roundLabel">00/10</span> <b>QUESTIONS</b></div><div class="clock" id="countdown">00:00</div></div>
+  <div id="tableArena" class="table-arena">
+    <div class="table-decoration" aria-hidden="true"><div class="rings r1"></div><div class="rings r2"></div><div class="rings r3"></div><div class="compass">✦</div></div>
+    <div id="seatLayer" class="seat-layer"></div><div id="memeLayer" class="meme-layer" aria-live="polite"></div>
+    <canvas id="fxCanvas" class="fx-canvas" aria-hidden="true"></canvas>
+    <div id="centerCard" class="center-card">
+      <div class="card-top"><span id="cardChapter">DOSSIER 01 / CLASSIFIÉ</span><span class="card-sigil">✦</span></div>
+      <div id="cardContent" class="card-content"></div>
+      <div class="card-bottom"><span id="cardProgress">◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆</span><span>RÉSEAU BAKER</span></div>
+    </div>
+  </div>
+  <div class="action-footer">
+    <div class="agent-status" id="myStatus"><span class="gold-dot"></span> MISSION HISTORIQUE · AUCUN AGENT ENCORE</div>
+    <div id="hostActions" class="footer-actions hidden"><button class="btn primary mini" id="startBtn">DÉMARRER ▶</button><button class="btn secondary mini hidden" id="nextBtn">SUIVANT ›</button><button class="btn ghost mini hidden" id="exportCsvBtn">⇩ SCORES CSV</button><button class="btn ghost mini" id="resetBtn">REJOUER ↻</button></div>
+    <div id="playerActions" class="footer-actions hidden"><span class="my-score" id="myScore">★ 0 POINT</span><span id="gadgetCounter" class="gadget-count hidden">🎯 1 lancer</span><button class="btn ghost mini hidden" id="cancelAimBtn">✕ ANNULER LA VISÉE</button></div>
+  </div>
+</section>
+</main>
+<div id="modalVeil" class="modal-veil hidden"></div>
+<section id="gadgetModal" class="gadget-modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-heading"><div><span class="eyebrow">ARSENAL SECRET</span><h2 id="modalTitle">Choisissez votre cible</h2></div><button id="closeModal" class="x-button" type="button">✕</button></div>
+  <div class="target-heading"><span id="selectedTargetLabel">Touchez l'avatar d'un adversaire</span><span id="targetPageLabel"></span></div>
+  <div id="targetGrid" class="target-grid"></div>
+  <div class="paging"><button id="prevTargets" class="tiny-btn" type="button">←</button><span>Les agents sont séparés autour de la table</span><button id="nextTargets" class="tiny-btn" type="button">→</button></div>
+  <div id="weaponGrid" class="weapon-grid"></div><div class="modal-rule">Une bonne réponse = un gadget. Aucun point n'est volé.</div>
+</section>
+<script src="/app.js"></script>
+</body>
+</html>
