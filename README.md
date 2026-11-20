@@ -1,8 +1,18 @@
-# OPÉRATION BAKER V9 · LE CERCLE DES ESPIONS
+# OPÉRATION BAKER V10 · LE CERCLE DES ESPIONS
 
 **Vraie partie multijoueur en temps réel · Pas de mode démo.**
 
 Quiz interactif en français, conçu pour une présentation scolaire sur Joséphine Baker. Un chef de mission anime la partie, et les joueurs se connectent sur leurs propres téléphones ou navigateurs.
+
+## Nouveau dans la V10 : affichage vérifié sur tous les écrans
+
+- Le contenu de la carte centrale s'adapte à la hauteur réelle de l'écran : plus rien n'est coupé, même sur un portable avec la mise à l'échelle Windows à 125 %.
+- Lobby du chef de mission plus compact : code, lien, QR code et boutons visibles d'un seul coup d'œil.
+- Questions plus compactes sur les petits écrans (le chapitre n'est plus écrit deux fois).
+- Téléphone tenu à l'horizontale : message « Tournez votre téléphone ».
+- Si la mission n'existe plus (serveur redémarré), la page revient toute seule à l'accueil.
+
+Vérifié automatiquement dans Chrome sur 188 écrans : 11 tailles (de 360×640 à 2560×1300) × toutes les étapes de la partie.
 
 ## Nouveau dans la V9 : espace modérateur
 

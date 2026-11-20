@@ -1,6 +1,6 @@
 {
   "name": "operation-baker-multiplayer-v7",
-  "version": "9.0.0",
+  "version": "10.0.0",
   "private": true,
   "description": "Jeu multijoueur réel – 10 questions × 10 secondes, 3 mèmes par question, réactions des malchanceux, score synchronisé – QR code d’invitation et espace modérateur",
   "scripts": {
