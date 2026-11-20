@@ -154,3 +154,4 @@
 #cardContent .final-content .loser-agent span,#cardContent .final-content .loser-agent small{flex:0 0 auto}
 @media (max-height:660px){#cardContent:has(.final-tabs) .card-eyebrow{display:none}#cardContent:has(.final-tabs) .card-title{font-size:clamp(15px,2.4vh,20px)}}
 #cardContent .final-content .loser-gallery{align-items:flex-start}
+.mod-link{text-decoration:none;display:inline-flex;align-items:center;margin-left:6px;background:#8a5a14}

@@ -1,11 +1,11 @@
 {
   "name": "operation-baker-multiplayer-v7",
-  "version": "8.0.0",
+  "version": "9.0.0",
   "private": true,
-  "description": "Jeu multijoueur réel – 10 questions × 10 secondes, 3 mèmes par question, réactions des malchanceux, score synchronisé – QR code d’invitation",
+  "description": "Jeu multijoueur réel – 10 questions × 10 secondes, 3 mèmes par question, réactions des malchanceux, score synchronisé – QR code d’invitation et espace modérateur",
   "scripts": {
     "start": "node server.js",
-    "test": "node test/test_real_v7.js && node test/test_sse_v7.js && node test/test_qr.js"
+    "test": "node test/test_real_v7.js && node test/test_sse_v7.js && node test/test_qr.js && node test/test_mod.js"
   },
   "engines": {
     "node": ">=18"

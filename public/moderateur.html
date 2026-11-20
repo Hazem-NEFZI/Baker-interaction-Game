@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Espace modérateur · Opération Baker</title>
+<link rel="stylesheet" href="/moderateur.css">
+</head>
+<body>
+<header class="m-top">
+  <div class="m-brand"><span class="m-star">✦</span><div><b>ESPACE MODÉRATEUR</b><small>Opération Baker</small></div></div>
+  <div class="m-meta">
+    <span class="m-chip">MISSION <b id="mRoom">····</b></span>
+    <span class="m-chip" id="mPhase">Connexion…</span>
+    <span class="m-chip m-timer" id="mTimer" hidden>00</span>
+    <span class="m-dot" id="mNet" title="Connexion"></span>
+  </div>
+</header>
+
+<main id="mApp" hidden>
+  <section class="m-stats">
+    <div class="m-stat"><span>Agents inscrits</span><b id="sPlayers">0</b><small id="sLimit"></small></div>
+    <div class="m-stat"><span>En ligne</span><b id="sOnline">0</b><small>téléphones connectés</small></div>
+    <div class="m-stat m-answered"><span id="sAnsweredLabel">Réponses</span><b id="sAnswered">–</b><div class="m-bar"><i id="sAnsweredBar"></i></div></div>
+    <div class="m-stat"><span>Question</span><b id="sQuestion">–</b><small id="sQuestionSub"></small></div>
+  </section>
+
+  <section class="m-controls" id="mControls"></section>
+
+  <div class="m-grid">
+    <section class="m-panel" id="pQuestion" hidden>
+      <header><h2>Question en cours</h2>
+        <label class="m-toggle" title="À n’activer que si cet écran n’est pas projeté"><input type="checkbox" id="liveToggle"><span>Voir les réponses en direct</span></label>
+      </header>
+      <p class="m-prompt" id="qPrompt"></p>
+      <div id="qDistribution" class="m-dist"></div>
+      <p class="m-hint" id="qHint"></p>
+    </section>
+
+    <section class="m-panel" id="pJoin" hidden>
+      <header><h2>Faire rejoindre</h2></header>
+      <div class="m-join">
+        <img id="joinQr" alt="QR code pour rejoindre">
+        <div><p>Les joueurs scannent ce QR code ou ouvrent :</p><b id="joinUrl" class="m-url"></b>
+        <p class="m-hint">Le QR code en grand est sur l’écran projeté.</p></div>
+      </div>
+    </section>
+
+    <section class="m-panel m-players">
+      <header><h2 id="playersTitle">Agents</h2><span class="m-hint" id="playersHint"></span></header>
+      <div id="playerList" class="m-list"><p class="m-empty">En attente des premiers agents… Montrez le QR code à la classe.</p></div>
+    </section>
+
+    <section class="m-panel" id="pFeed">
+      <header><h2>Gadgets lancés</h2></header>
+      <ul id="feed" class="m-feed"><li class="m-empty">Aucun lancer pour l’instant.</li></ul>
+    </section>
+  </div>
+
+  <footer class="m-foot">
+    <button type="button" class="m-small" id="phoneBtn">📱 Ouvrir ce panneau sur mon téléphone</button>
+    <a class="m-small" href="/" target="_blank" rel="noopener">↗ Écran projeté</a>
+  </footer>
+</main>
+
+<section id="mLogin" class="m-login" hidden>
+  <h1>Espace modérateur</h1>
+  <p>Ouvrez cette page depuis l’écran du chef de mission (bouton <b>🎛️ ESPACE MODÉRATEUR</b> dans le lobby), ou scannez le QR code « Ouvrir sur mon téléphone » affiché dans l’espace modérateur.</p>
+  <a class="m-btn" href="/">Aller à l’accueil du jeu</a>
+</section>
+
+<div id="phoneModal" class="m-modal" hidden>
+  <div class="m-modal-card">
+    <h3>Ouvrir sur mon téléphone</h3>
+    <p class="m-warn">⚠️ Ce QR code donne le contrôle de la partie. Ne le montrez pas à la classe.</p>
+    <img id="phoneQr" alt="QR code de l’espace modérateur">
+    <button type="button" class="m-btn" id="phoneClose">Fermer</button>
+  </div>
+</div>
+
+<div id="mToast" class="m-toast" role="status" aria-live="polite"></div>
+<script src="/mod.js"></script>
+</body>
+</html>

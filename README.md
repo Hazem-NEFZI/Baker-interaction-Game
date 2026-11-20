@@ -1,8 +1,22 @@
-# OPÉRATION BAKER V8 · LE CERCLE DES ESPIONS
+# OPÉRATION BAKER V9 · LE CERCLE DES ESPIONS
 
 **Vraie partie multijoueur en temps réel · Pas de mode démo.**
 
 Quiz interactif en français, conçu pour une présentation scolaire sur Joséphine Baker. Un chef de mission anime la partie, et les joueurs se connectent sur leurs propres téléphones ou navigateurs.
+
+## Nouveau dans la V9 : espace modérateur
+
+Un panneau privé pour suivre et piloter la partie, pendant que l’écran principal reste projeté.
+
+**Ouvrir :** dans le lobby, cliquer sur **🎛️ ESPACE MODÉRATEUR ↗** (nouvel onglet). Pour l’avoir sur votre téléphone : dans l’espace modérateur, **📱 Ouvrir ce panneau sur mon téléphone**, puis scanner le QR code. ⚠️ Ce QR code donne le contrôle de la partie : ne le montrez pas à la classe.
+
+**Avant la partie :** nombre d’agents inscrits et en ligne, liste des joueurs, bouton ✕ pour retirer un joueur (nom inapproprié, doublon), fermer/rouvrir les inscriptions, changer la limite, activer ou non les gadgets, **🚀 LANCER LA PARTIE**.
+
+**Pendant la partie :** chrono, « 12 / 18 ont répondu », qui réfléchit encore, répartition des réponses, classement en direct, gadgets lancés, **RÉVÉLER LA RÉPONSE** / **QUESTION SUIVANTE**, **Recommencer**.
+
+**Écran projeté ?** Par défaut, les bonnes et mauvaises réponses restent cachées jusqu’à la révélation : le panneau peut donc être montré sans tricherie. Cochez **Voir les réponses en direct** uniquement si l’écran n’est pas projeté.
+
+**Fin de partie :** classement final, **⬇ scores CSV**, **🔁 Rejouer avec les mêmes agents**.
 
 ## Nouveau dans la V8 : QR code d’invitation
 

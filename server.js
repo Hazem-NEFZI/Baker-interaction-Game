@@ -64,9 +64,18 @@ function readBody(req){return new Promise((resolve,reject)=>{let text='';req.on(
 function lookup(body){let room=rooms.get(String(body.room||''));if(!room)throw Error('Code de mission introuvable.');room.activity=Date.now();return room;}
 function checkHost(r,b){if(b.hostKey!==r.hostKey)throw Error('Accès réservé au chef de mission.');}
 function checkAgent(r,b){let p=r.players.get(String(b.pid||''));if(!p)throw Error('Identité d’agent inconnue.');return p;}
-function rankings(r){return [...r.players.values()].sort((a,b)=>b.score-a.score||b.correct-a.correct||b.bestStreak-a.bestStreak||a.name.localeCompare(b.name)).map((p,i)=>({rank:i+1,id:p.id,name:p.name,avatar:p.avatar,score:p.score,streak:p.streak,correct:p.correct,bestStreak:p.bestStreak,attacks:p.attacks,charges:p.charges,offset:p.offset||0,online:p.online}));}
+function rankings(r){return [...r.players.values()].sort((a,b)=>b.score-a.score||b.correct-a.correct||b.bestStreak-a.bestStreak||a.name.localeCompare(b.name)).map((p,i)=>({rank:i+1,id:p.id,name:p.name,avatar:p.avatar,score:p.score,streak:p.streak,correct:p.correct,bestStreak:p.bestStreak,attacks:p.attacks,charges:p.charges,offset:p.offset||0,online:isOnline(r,p.id)}));}
 function mission(r){if(!r.questions.length)return null;let q=r.questions[r.index];return q?{id:q.id,chapter:q.chapter,title:q.title,prompt:q.prompt,choices:q.choices,theme:q.theme,seconds:q.seconds,...(['reveal','finished'].includes(r.status)?{answer:q.answer,fact:q.fact,source:q.source}:{})}:null;}
-function state(r,pid,host=false){let p=pid&&r.players.get(pid);return {type:'state',room:r.pin,status:r.status,index:r.index,total:r.questions.length,endsAt:r.endsAt,revealUntil:r.revealUntil,serverNow:Date.now(),mission:mission(r),scores:rankings(r),playerCount:r.players.size,attacks:r.attackFeed.slice(-5),settings:{speed:r.speed,mayAttack:r.mayAttack,maxPlayers:r.maxPlayers,joinLocked:r.joinLocked},me:!host&&p?{id:p.id,name:p.name,avatar:p.avatar,score:p.score,streak:p.streak,correct:p.correct,charges:p.charges,answered:p.answers.has(r.index),last:p.last,awards:awardsFor(p)}:null};}
+function state(r,pid,host=false){let p=pid&&r.players.get(pid);return {type:'state',room:r.pin,status:r.status,index:r.index,total:r.questions.length,endsAt:r.endsAt,revealUntil:r.revealUntil,serverNow:Date.now(),mission:mission(r),scores:rankings(r),playerCount:r.players.size,attacks:r.attackFeed.slice(-5),settings:{speed:r.speed,mayAttack:r.mayAttack,maxPlayers:r.maxPlayers,joinLocked:r.joinLocked},...(host?{mod:modView(r)}:{}),me:!host&&p?{id:p.id,name:p.name,avatar:p.avatar,score:p.score,streak:p.streak,correct:p.correct,charges:p.charges,answered:p.answers.has(r.index),last:p.last,awards:awardsFor(p)}:null};}
+function isOnline(r,id){for(const c of r.connections)if(c.pid===id)return true;return false;}
+function modView(r){
+ const reveal=['reveal','finished'].includes(r.status),q=r.questions[r.index];
+ const players=[...r.players.values()].map(p=>{const pick=p.picks?.[r.index];return {id:p.id,name:p.name,avatar:p.avatar,online:isOnline(r,p.id),score:p.score,correct:p.correct,streak:p.streak,attacks:p.attacks,
+   answered:!!pick,answer:pick?pick.answer:null,ok:pick?pick.correct:null,points:pick?pick.points:0,ms:pick?pick.ms:null,joinedAt:p.joinedAt||0};});
+ const distribution={};if(q)for(const c of q.choices)distribution[c]=0;
+ for(const p of players)if(p.answer!==null&&Object.hasOwn(distribution,p.answer))distribution[p.answer]++;
+ return {players,answeredCount:players.filter(p=>p.answered).length,onlineCount:players.filter(p=>p.online).length,distribution,correctAnswer:q?q.answer:null,reveal};
+}
 function awardsFor(p){let list=[];if(p.correct>=1)list.push('Premier indice');if(p.streak>=2||p.bestStreak>=2)list.push('Duo parfait');if(p.correct>=4)list.push('Agent d’élite');if(p.attacks>=2)list.push('As du sabotage');return list;}
 function emit(r,event,payload,filter=()=>true){let item='event: '+event+'\ndata: '+JSON.stringify(payload)+'\n\n';for(let c of [...r.connections]){if(!filter(c))continue;try{c.res.write(item);}catch{r.connections.delete(c);}}}
 function broadcast(r){for(let c of [...r.connections]){try{c.res.write('event: state\ndata: '+JSON.stringify(state(r,c.pid,c.host))+'\n\n')}catch{r.connections.delete(c)}}}
@@ -89,7 +98,7 @@ async function api(req,res,route){try{
    if(!AVATARS.includes(avatar))throw Error('Choisissez un avatar.');
    if(r.players.size>=r.maxPlayers)throw Error('Mission complète : '+r.maxPlayers+' agents maximum.');
    if([...r.players.values()].some(p=>p.name.toLocaleLowerCase('fr')===name.toLocaleLowerCase('fr')))throw Error('Ce nom d’agent est déjà pris.');
-   const id=token();r.players.set(id,{id,name,avatar,score:0,correct:0,streak:0,bestStreak:0,charges:0,attacks:0,answers:new Set(),last:null,lastAttackAt:0,lastMoveAt:0,offset:0,online:true});broadcast(r);return json(res,200,{room:r.pin,pid:id});
+   const id=token();r.players.set(id,{id,name,avatar,score:0,correct:0,streak:0,bestStreak:0,charges:0,attacks:0,answers:new Set(),picks:{},joinedAt:Date.now(),last:null,lastAttackAt:0,lastMoveAt:0,offset:0,online:true});broadcast(r);return json(res,200,{room:r.pin,pid:id});
  }
  if(route==='status'){let p=b.hostKey===r.hostKey?null:checkAgent(r,b);return json(res,200,state(r,p?.id,!!b.hostKey));}
  if(route==='control'){
@@ -109,7 +118,11 @@ async function api(req,res,route){try{
    }else if(action==='reset'){
       r.status='lobby';r.index=0;r.hitsThisQuestion=0;r.endsAt=0;r.revealUntil=0;r.attackFeed=[];r.joinLocked=false;
       r.questions=QUESTIONS.map(q=>({...q,choices:shuffle(q.choices)}));
-      for(const p of r.players.values())Object.assign(p,{score:0,correct:0,streak:0,bestStreak:0,charges:0,attacks:0,answers:new Set(),last:null,lastAttackAt:0,lastMoveAt:0,offset:0});
+      for(const p of r.players.values())Object.assign(p,{score:0,correct:0,streak:0,bestStreak:0,charges:0,attacks:0,answers:new Set(),picks:{},last:null,lastAttackAt:0,lastMoveAt:0,offset:0});
+   }else if(action==='kick'){
+      const victim=r.players.get(String(b.pid||''));if(!victim)throw Error('Agent introuvable.');
+      r.players.delete(victim.id);
+      for(const c of [...r.connections]){if(c.pid!==victim.id)continue;try{c.res.write('event: kicked\ndata: {}\n\n');c.res.end()}catch{}r.connections.delete(c);}
    }else throw Error('Commande inconnue.');broadcast(r);return json(res,200,{ok:true});
  }
  if(route==='move'){
@@ -128,6 +141,7 @@ async function api(req,res,route){try{
     let points=0;
     if(correct){const timeLeft=Math.max(0,(r.endsAt-Date.now())/(q.seconds*r.speed*1000));const speedPoints=Math.round(300*timeLeft);p.streak++;p.bestStreak=Math.max(p.bestStreak,p.streak);p.correct++;points=400+speedPoints+Math.min(180,(p.streak-1)*40);p.score+=points;p.charges=1;p.last={correct:true,points};}
     else{p.streak=0;p.last={correct:false,points:0};}
+    p.picks[r.index]={answer:String(b.answer||'').slice(0,120),correct,points,ms:Math.max(0,Date.now()-(r.endsAt-Math.round(q.seconds*r.speed*1000)))};
     broadcast(r);return json(res,200,{correct,points,charges:p.charges});
  }
  if(route==='attack'){
@@ -168,7 +182,7 @@ const server=http.createServer((req,res)=>{
    const host=url.searchParams.get('host')===r.hostKey;
    const pid=host?null:url.searchParams.get('pid');if(!host&&!r.players.has(pid))return json(res,401,{error:'Agent inconnu'});
    res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-cache, no-transform','Connection':'keep-alive','X-Accel-Buffering':'no'});
-   let c={res,pid,host};r.connections.add(c);res.write(': connexion sécurisée\n\n');res.write('event: state\ndata: '+JSON.stringify(state(r,pid,host))+'\n\n');req.on('close',()=>r.connections.delete(c));r.activity=Date.now();return;
+   let c={res,pid,host};r.connections.add(c);res.write(': connexion sécurisée\n\n');res.write('event: state\ndata: '+JSON.stringify(state(r,pid,host))+'\n\n');req.on('close',()=>{r.connections.delete(c);if(pid)broadcast(r);});r.activity=Date.now();if(pid)broadcast(r);return;
  }
  if(req.method==='GET'&&url.pathname==='/health')return json(res,200,{ok:true,rooms:rooms.size});
  if(req.method==='GET'&&url.pathname==='/api/network'){
@@ -176,7 +190,8 @@ const server=http.createServer((req,res)=>{
  }
  if(req.method==='GET'&&url.pathname==='/qr.svg'){
    const room=String(url.searchParams.get('room')||'').replace(/\D/g,'').slice(0,4);
-   const target=joinBase(req).base+(room.length===4?'/?room='+room:'/');
+   let target=joinBase(req).base+(room.length===4?'/?room='+room:'/');
+   if(url.searchParams.has('mod')){const r=rooms.get(room);if(!r||url.searchParams.get('key')!==r.hostKey)return json(res,403,{error:'Accès réservé au chef de mission.'});target=joinBase(req).base+'/moderateur.html#room='+room+'&key='+encodeURIComponent(r.hostKey);}
    res.writeHead(200,{'Content-Type':'image/svg+xml; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});return res.end(qrSvg(target));
  }
  if(req.method!=='GET')return json(res,405,{error:'Méthode non autorisée'});
